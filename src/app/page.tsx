@@ -1,10 +1,12 @@
 import { BookOpen, PenSquare, Rocket } from 'lucide-react';
 import Link from 'next/link';
+import { TrackPageView } from '@/components/analytics/TrackPageView';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
   return (
     <div className="flex flex-col">
+      <TrackPageView pageName="Home" />
       <section className="container mx-auto px-4 py-24 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <div className="flex justify-center">

@@ -1,4 +1,5 @@
 import { PenSquare } from 'lucide-react';
+import { TrackPageView } from '@/components/analytics/TrackPageView';
 import { BlogCard } from '@/components/blog-card';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { IBlogPost } from '@/models/BlogPost';
@@ -23,6 +24,7 @@ export default async function BlogPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <TrackPageView pageName="Browse Blog Posts" properties={{ postsCount: posts.length }} />
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Blog Posts</h1>
         <p className="text-muted-foreground mt-2">Read the latest articles and tutorials</p>

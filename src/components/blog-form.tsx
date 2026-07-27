@@ -22,8 +22,11 @@ interface BlogFormProps {
   mode: 'create' | 'edit';
 }
 
+import { useAnalytics } from '@/lib/analytics/AnalyticsContext';
+
 export function BlogForm({ initialData, mode }: BlogFormProps) {
   const router = useRouter();
+  const { trackEvent } = useAnalytics();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -46,6 +49,11 @@ export function BlogForm({ initialData, mode }: BlogFormProps) {
       const url = mode === 'create' ? '/api/posts' : `/api/posts/${initialData?._id}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
 
+      const tagsArray = formData.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -53,16 +61,35 @@ export function BlogForm({ initialData, mode }: BlogFormProps) {
         },
         body: JSON.stringify({
           ...formData,
-          tags: formData.tags
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean),
+          tags: tagsArray,
         }),
       });
 
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || 'Failed to save post');
+      }
+
+      // Track the save action
+      if (mode === 'create') {
+        trackEvent('Blog Post Created', {
+          title: formData.title,
+          author: formData.author,
+          tagsCount: tagsArray.length,
+          tags: tagsArray,
+          contentWordCount: formData.content.split(/\s+/).filter(Boolean).length,
+          hasCoverImage: !!formData.coverImage,
+        });
+      } else {
+        trackEvent('Blog Post Edited', {
+          postId: initialData?._id,
+          title: formData.title,
+          author: formData.author,
+          tagsCount: tagsArray.length,
+          tags: tagsArray,
+          contentWordCount: formData.content.split(/\s+/).filter(Boolean).length,
+          hasCoverImage: !!formData.coverImage,
+        });
       }
 
       router.push('/blog');

@@ -1,7 +1,9 @@
 import { format } from 'date-fns';
-import { ArrowLeft, CalendarDays, Pencil, Trash2, User } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Pencil, User } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { TrackPageView } from '@/components/analytics/TrackPageView';
+import { DeletePostButton } from '@/components/blog-delete-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -38,6 +40,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <article className="container mx-auto px-4 py-8">
+      <TrackPageView
+        pageName="View Blog Post"
+        properties={{
+          postId: String(post._id),
+          title: post.title,
+          author: post.author,
+          tags: post.tags,
+        }}
+      />
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <Link href="/blog">
@@ -95,18 +106,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               Edit Post
             </Button>
           </Link>
-          <form
-            action={async () => {
-              'use server';
-              await connectToDatabase();
-              await BlogPost.findByIdAndDelete(post?._id);
-            }}
-          >
-            <Button type="submit" variant="destructive" className="gap-2">
-              <Trash2 className="h-4 w-4" />
-              Delete Post
-            </Button>
-          </form>
+          <DeletePostButton
+            postId={String(post._id)}
+            postTitle={post.title}
+            postAuthor={post.author}
+          />
         </div>
       </div>
     </article>
