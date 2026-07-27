@@ -1,3 +1,4 @@
+import mixpanel from 'mixpanel-browser';
 import type { AnalyticsProvider } from './types';
 
 class MixpanelProvider implements AnalyticsProvider {
@@ -5,36 +6,64 @@ class MixpanelProvider implements AnalyticsProvider {
   name = 'Mixpanel';
   enabled = false; // Disabled by default until toggled on in the comparison dashboard
   initialized = false;
+  private apiKey = process.env.NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN || process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || '';
 
   async init(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
 
-    console.log('[Analytics] [Mixpanel] Initializing (Simulated)...');
+    if (!this.apiKey) {
+      console.warn(
+        'Mixpanel Project Token (NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN) is missing. Mixpanel will run in simulation/console mode.',
+      );
+      this.initialized = true; // Set to true to allow mock tracking
+      return true;
+    }
 
-    // Simulate SDK loading delay
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    try {
+      mixpanel.init(this.apiKey, {
+        debug: process.env.NODE_ENV !== 'production',
+        track_pageview: false, // We'll handle page views manually to avoid duplicates
+        persistence: 'localStorage',
+      });
 
-    this.initialized = true;
-    console.log('[Analytics] [Mixpanel] Initialized successfully (Simulated).');
-    return true;
+      this.initialized = true;
+      console.log('Mixpanel initialized successfully.');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize Mixpanel:', error);
+      return false;
+    }
   }
 
   track(eventName: string, properties?: Record<string, any>): void {
-    if (!this.enabled || !this.initialized) return;
+    if (!this.enabled) return;
 
     const formattedProps = {
       ...properties,
       $platform: 'Web',
-      $library: 'mixpanel-browser-mock',
+      $library: 'mixpanel-browser',
     };
 
-    console.log(`[Analytics] [Mixpanel - Simulated] Event Tracked: ${eventName}`, formattedProps);
+    if (this.apiKey && this.initialized) {
+      mixpanel.track(eventName, formattedProps);
+      console.log(`[Analytics] [Mixpanel] Event Tracked: ${eventName}`, formattedProps);
+    } else {
+      console.log(`[Analytics] [Mixpanel - Simulating] Event Tracked: ${eventName}`, formattedProps);
+    }
   }
 
   identify(userId: string, traits?: Record<string, any>): void {
-    if (!this.enabled || !this.initialized) return;
+    if (!this.enabled) return;
 
-    console.log(`[Analytics] [Mixpanel - Simulated] User Identified: ${userId}`, traits);
+    if (this.apiKey && this.initialized) {
+      mixpanel.identify(userId);
+      if (traits) {
+        mixpanel.people.set(traits);
+      }
+      console.log(`[Analytics] [Mixpanel] User Identified: ${userId}`, traits);
+    } else {
+      console.log(`[Analytics] [Mixpanel - Simulating] User Identified: ${userId}`, traits);
+    }
   }
 }
 
