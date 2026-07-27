@@ -32,7 +32,7 @@ export const PROVIDER_BENCHMARKS: Record<string, ProviderBenchmark> = {
   amplitude: {
     id: 'amplitude',
     name: 'Amplitude',
-    bundleSizeKb: 26.0,
+    bundleSizeKb: 221.1,
     averageLatencyMs: 45,
     freeTierLimit: '2M events/mo (Starter)',
     startingPrice: '$49/mo (Plus)',
@@ -59,7 +59,7 @@ export const PROVIDER_BENCHMARKS: Record<string, ProviderBenchmark> = {
   posthog: {
     id: 'posthog',
     name: 'PostHog',
-    bundleSizeKb: 125.0,
+    bundleSizeKb: 224.6,
     averageLatencyMs: 85,
     freeTierLimit: '1M events/mo + 5k replays',
     startingPrice: 'Pay-as-you-go ($0.0001/event)',
@@ -86,7 +86,7 @@ export const PROVIDER_BENCHMARKS: Record<string, ProviderBenchmark> = {
   mixpanel: {
     id: 'mixpanel',
     name: 'Mixpanel',
-    bundleSizeKb: 95.0,
+    bundleSizeKb: 410.9,
     averageLatencyMs: 52,
     freeTierLimit: '1M events/mo + 10k replays',
     startingPrice: '$28/mo (Growth)',

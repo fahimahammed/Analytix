@@ -15,13 +15,13 @@ Integrating tracking scripts introduces client-side overhead that affects Core W
 
 | Metrics | Amplitude (`@amplitude/analytics-browser`) | PostHog (`posthog-js`) | Mixpanel (`mixpanel-browser`) |
 | :--- | :---: | :---: | :---: |
-| **Minified Bundle Size** | ~26 KB | ~125 KB | ~95 KB |
-| **Gzipped Bundle Size** | ~7.5 KB | ~35 KB | ~28 KB |
+| **Minified Bundle Size** | 221.1 KB | 224.6 KB | 410.9 KB |
+| **Gzipped Bundle Size** | 60.4 KB | 73.3 KB | 118.9 KB |
 | **Average Latency (API Post)**| ~45ms | ~85ms | ~52ms |
 | **Main Overhead Sources** | Modular API calls | Autocaptures, toolbar, session recorders | Session recording scripts |
 
 > [!NOTE]
-> PostHog and Mixpanel include session recording scripts inside their primary client-side SDK bundles, causing them to be heavier. Amplitude remains modular, separating advanced features into standalone plugins.
+> All three SDKs carry a notable JavaScript execution footprint when fully loaded, ranging from ~221 KB to over ~410 KB minified, with Mixpanel being the heaviest (includes replay tracker scripts).
 
 ---
 
