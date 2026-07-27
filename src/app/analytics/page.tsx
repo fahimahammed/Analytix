@@ -53,6 +53,9 @@ export default function AnalyticsDashboard() {
   );
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
+  // Provider filter state
+  const [providerFilter, setProviderFilter] = useState<'all' | 'amplitude' | 'posthog' | 'mixpanel'>('all');
+
   // Simulator state
   const [simEventName, setSimEventName] = useState('button_click');
   const [simProps, setSimProps] = useState(
@@ -81,8 +84,14 @@ export default function AnalyticsDashboard() {
     }
   };
 
+  // Filter logs by selected provider
+  const filteredLogs = logs.filter((log) => {
+    if (providerFilter === 'all') return true;
+    return log.providers.includes(providerFilter);
+  });
+
   // Stats calculation
-  const totalEvents = logs.length;
+  const totalEvents = filteredLogs.length;
   const activeCount = providers.filter((p) => p.enabled).length;
   const totalProvidersCount = providers.length;
 
@@ -111,7 +120,54 @@ export default function AnalyticsDashboard() {
             real-time.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border text-xs shadow-sm">
+            <span className="text-muted-foreground px-2 font-medium">Filter SDK:</span>
+            <button
+              type="button"
+              onClick={() => setProviderFilter('all')}
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                providerFilter === 'all'
+                  ? 'bg-card text-foreground shadow-sm border border-border/40'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setProviderFilter('amplitude')}
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                providerFilter === 'amplitude'
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-amber-600'
+              }`}
+            >
+              Amplitude
+            </button>
+            <button
+              type="button"
+              onClick={() => setProviderFilter('posthog')}
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                providerFilter === 'posthog'
+                  ? 'bg-red-500 text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-red-500'
+              }`}
+            >
+              PostHog
+            </button>
+            <button
+              type="button"
+              onClick={() => setProviderFilter('mixpanel')}
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                providerFilter === 'mixpanel'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-purple-600'
+              }`}
+            >
+              Mixpanel
+            </button>
+          </div>
           <Button onClick={clearLogs} variant="destructive" size="sm" className="gap-2">
             <Trash2 className="h-4 w-4" />
             Clear Stream
@@ -337,7 +393,7 @@ export default function AnalyticsDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab('stream')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'stream'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -345,14 +401,14 @@ export default function AnalyticsDashboard() {
         >
           <span className="flex items-center gap-1.5">
             <Activity className="h-4 w-4" />
-            Live Event Stream ({logs.length})
+            Live Event Stream ({filteredLogs.length})
           </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('pricing')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'pricing'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -367,7 +423,7 @@ export default function AnalyticsDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab('performance')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'performance'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -382,7 +438,7 @@ export default function AnalyticsDashboard() {
         <button
           type="button"
           onClick={() => setActiveTab('features')}
-          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
             activeTab === 'features'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -408,18 +464,19 @@ export default function AnalyticsDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {logs.length === 0 ? (
+              {filteredLogs.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground">
                   <Activity className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <h4 className="font-semibold text-lg">No events in the pipeline yet</h4>
+                  <h4 className="font-semibold text-lg">No matching events in the pipeline</h4>
                   <p className="text-sm mt-1 max-w-sm mx-auto">
-                    Try navigating the blog, creating new posts, viewing posts, or firing the
-                    simulator to see events register here.
+                    {providerFilter === 'all'
+                      ? 'Try navigating the blog, creating new posts, viewing posts, or firing the simulator to see events register here.'
+                      : `Try performing actions while the ${providerFilter} SDK integration is active.`}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                  {logs.map((log) => {
+                  {filteredLogs.map((log) => {
                     const isExpanded = expandedLogId === log._id;
                     const logDate = new Date(log.timestamp);
                     const formattedTime = logDate.toLocaleTimeString();
