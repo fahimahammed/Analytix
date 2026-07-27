@@ -209,7 +209,7 @@ export async function GET(request: NextRequest) {
   if (source === 'posthog') {
     let recordings = MOCK_POSTHOG_RECORDINGS;
     let heatmaps = MOCK_POSTHOG_HEATMAPS;
-    let funnel = MOCK_POSTHOG_FUNNEL;
+    const funnel = MOCK_POSTHOG_FUNNEL;
 
     if (posthogApiKey && posthogProjectId) {
       try {
@@ -223,7 +223,7 @@ export async function GET(request: NextRequest) {
           {
             headers: { Authorization: `Bearer ${posthogApiKey}` },
             next: { revalidate: 15 },
-          }
+          },
         );
 
         if (recResponse.ok) {
@@ -267,7 +267,8 @@ export async function GET(request: NextRequest) {
           body: JSON.stringify({
             query: {
               kind: 'HogQLQuery',
-              query: "SELECT properties.$el_text, count() FROM events WHERE event = '$autocapture' GROUP BY properties.$el_text LIMIT 50",
+              query:
+                "SELECT properties.$el_text, count() FROM events WHERE event = '$autocapture' GROUP BY properties.$el_text LIMIT 50",
             },
             name: 'heatmap_counts',
           }),
@@ -288,7 +289,10 @@ export async function GET(request: NextRequest) {
             const updateHeatmapIntensities = (points: HeatmapPoint[]) => {
               return points.map((p) => {
                 const textKey = p.element.toLowerCase();
-                const matchedCount = countsMap.get(textKey) || Array.from(countsMap.entries()).find(([k]) => k.includes(textKey))?.[1] || 0;
+                const matchedCount =
+                  countsMap.get(textKey) ||
+                  Array.from(countsMap.entries()).find(([k]) => k.includes(textKey))?.[1] ||
+                  0;
                 if (matchedCount > 0) {
                   return { ...p, intensity: Math.min(60 + matchedCount * 5, 100) };
                 }
@@ -320,7 +324,7 @@ export async function GET(request: NextRequest) {
   // SOURCE: MIXPANEL
   // ------------------------------------------------------------
   else {
-    let recordings = MOCK_MIXPANEL_RECORDINGS;
+    const recordings = MOCK_MIXPANEL_RECORDINGS;
     let heatmaps = MOCK_MIXPANEL_HEATMAPS;
     let funnel = MOCK_MIXPANEL_FUNNEL;
 
@@ -335,7 +339,7 @@ export async function GET(request: NextRequest) {
           {
             headers: { Authorization: `Basic ${auth}` },
             next: { revalidate: 60 },
-          }
+          },
         );
 
         if (segResponse.ok) {
@@ -343,10 +347,30 @@ export async function GET(request: NextRequest) {
           const liveCount = segData.results?.all || 2450;
           funnel = [
             { name: '1. Landing Page View', count: liveCount, percentage: 100, dropoff: 0 },
-            { name: '2. Browse Blog Posts', count: Math.round(liveCount * 0.8), percentage: 80, dropoff: 20 },
-            { name: '3. Read Specific Post', count: Math.round(liveCount * 0.5), percentage: 50, dropoff: 37.5 },
-            { name: '4. Start Creating Post', count: Math.round(liveCount * 0.2), percentage: 20, dropoff: 60 },
-            { name: '5. Successfully Publish Post', count: Math.round(liveCount * 0.12), percentage: 12, dropoff: 40 },
+            {
+              name: '2. Browse Blog Posts',
+              count: Math.round(liveCount * 0.8),
+              percentage: 80,
+              dropoff: 20,
+            },
+            {
+              name: '3. Read Specific Post',
+              count: Math.round(liveCount * 0.5),
+              percentage: 50,
+              dropoff: 37.5,
+            },
+            {
+              name: '4. Start Creating Post',
+              count: Math.round(liveCount * 0.2),
+              percentage: 20,
+              dropoff: 60,
+            },
+            {
+              name: '5. Successfully Publish Post',
+              count: Math.round(liveCount * 0.12),
+              percentage: 12,
+              dropoff: 40,
+            },
           ];
         }
 
@@ -356,7 +380,7 @@ export async function GET(request: NextRequest) {
           {
             headers: { Authorization: `Basic ${auth}` },
             next: { revalidate: 60 },
-          }
+          },
         );
 
         if (clickResponse.ok) {
@@ -364,14 +388,20 @@ export async function GET(request: NextRequest) {
           if (clickData?.data?.values) {
             const countsMap = new Map<string, number>();
             for (const [linkLabel, valueObj] of Object.entries(clickData.data.values)) {
-              const totals = Object.values(valueObj as Record<string, number>).reduce((a, b) => a + b, 0);
+              const totals = Object.values(valueObj as Record<string, number>).reduce(
+                (a, b) => a + b,
+                0,
+              );
               countsMap.set(linkLabel.toLowerCase(), totals);
             }
 
             const updateHeatmapIntensities = (points: HeatmapPoint[]) => {
               return points.map((p) => {
                 const labelKey = p.element.toLowerCase();
-                const matchedCount = countsMap.get(labelKey) || Array.from(countsMap.entries()).find(([k]) => k.includes(labelKey))?.[1] || 0;
+                const matchedCount =
+                  countsMap.get(labelKey) ||
+                  Array.from(countsMap.entries()).find(([k]) => k.includes(labelKey))?.[1] ||
+                  0;
                 if (matchedCount > 0) {
                   return { ...p, intensity: Math.min(50 + matchedCount * 8, 100) };
                 }

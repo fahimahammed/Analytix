@@ -6,7 +6,8 @@ class MixpanelProvider implements AnalyticsProvider {
   name = 'Mixpanel';
   enabled = false; // Disabled by default until toggled on in the comparison dashboard
   initialized = false;
-  private apiKey = process.env.NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN || process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || '';
+  private apiKey =
+    process.env.NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN || process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || '';
 
   async init(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
@@ -25,7 +26,6 @@ class MixpanelProvider implements AnalyticsProvider {
         track_pageview: false, // We'll handle page views manually to avoid duplicates
         persistence: 'localStorage',
         record_sessions_percent: 100, // Record 100% of sessions for this observability demo
-        // @ts-ignore - record_heatmap_data might not be fully typed in all typings versions
         record_heatmap_data: true,
       });
 
@@ -51,7 +51,10 @@ class MixpanelProvider implements AnalyticsProvider {
       mixpanel.track(eventName, formattedProps);
       console.log(`[Analytics] [Mixpanel] Event Tracked: ${eventName}`, formattedProps);
     } else {
-      console.log(`[Analytics] [Mixpanel - Simulating] Event Tracked: ${eventName}`, formattedProps);
+      console.log(
+        `[Analytics] [Mixpanel - Simulating] Event Tracked: ${eventName}`,
+        formattedProps,
+      );
     }
   }
 

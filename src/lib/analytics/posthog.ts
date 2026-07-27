@@ -6,7 +6,8 @@ class PostHogProvider implements AnalyticsProvider {
   name = 'PostHog';
   enabled = false; // Disabled by default until toggled on in the comparison dashboard
   initialized = false;
-  private apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY || process.env.NEXT_PUBLIC_POSTHOG_API_KEY || '';
+  private apiKey =
+    process.env.NEXT_PUBLIC_POSTHOG_KEY || process.env.NEXT_PUBLIC_POSTHOG_API_KEY || '';
   private apiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
 
   async init(): Promise<boolean> {
