@@ -24,6 +24,9 @@ class MixpanelProvider implements AnalyticsProvider {
         debug: process.env.NODE_ENV !== 'production',
         track_pageview: false, // We'll handle page views manually to avoid duplicates
         persistence: 'localStorage',
+        record_sessions_percent: 100, // Record 100% of sessions for this observability demo
+        // @ts-ignore - record_heatmap_data might not be fully typed in all typings versions
+        record_heatmap_data: true,
       });
 
       this.initialized = true;

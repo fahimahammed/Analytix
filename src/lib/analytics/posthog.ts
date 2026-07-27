@@ -25,7 +25,8 @@ class PostHogProvider implements AnalyticsProvider {
         api_host: this.apiHost,
         capture_pageview: false, // We'll handle page views manually to avoid duplicates
         persistence: 'localStorage',
-        autocapture: false,
+        autocapture: true,
+        capture_heatmaps: true,
       });
 
       this.initialized = true;
